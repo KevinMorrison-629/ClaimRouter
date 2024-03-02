@@ -66,163 +66,200 @@ def initializeTables() -> None:
     return
 
 def getAllActiveGuilds() -> set:
-    query = f"""SELECT {EN_GUILDID} FROM {TN_ACTIVEGUILDS}"""
-    cur.execute(query)
-    return {each[0] for each in cur.fetchall()}
+    try:
+        query = f"""SELECT {EN_GUILDID} FROM {TN_ACTIVEGUILDS}"""
+        cur.execute(query)
+        return {each[0] for each in cur.fetchall()}
+    except Exception as exc:
+        print(f"[Error] (getAllActiveGuilds): {exc}")
+        print(f"\tQuery: \"{query}\"")
+        return set()
 
 def getChannelRoutes(guildId : int, srcChannel : int) -> List[int]:
-    query = f"""SELECT ({EN_DESTCHANNEL}) FROM {TN_ROUTES} WHERE {EN_GUILDID}={guildId} AND {EN_SRCCHANNEL}={srcChannel}"""
-    cur.execute(query)
-    res = [each[0] for each in cur.fetchall()]
-    if len(res) > 0:
+    try:
+        query = f"""SELECT ({EN_DESTCHANNEL}) FROM {TN_ROUTES} WHERE {EN_GUILDID}={guildId} AND {EN_SRCCHANNEL}={srcChannel}"""
+        cur.execute(query)
+        res = [each[0] for each in cur.fetchall()]
+        if len(res) > 0:
+            return res
+        query = f"""SELECT ({EN_DESTCHANNEL}) FROM {TN_ROUTES} WHERE {EN_GUILDID}={guildId} AND {EN_SRCCHANNEL}={-1}"""
+        cur.execute(query)
+        res = [each[0] for each in cur.fetchall()]
         return res
-    query = f"""SELECT ({EN_DESTCHANNEL}) FROM {TN_ROUTES} WHERE {EN_GUILDID}={guildId} AND {EN_SRCCHANNEL}={-1}"""
-    cur.execute(query)
-    res = [each[0] for each in cur.fetchall()]
+    except Exception as exc:
+        print(f"[Error] (getChannelRoutes): {exc}")
+        print(f"\tQuery: \"{query}\"")
+        return []
 
 def isRouted(messageId : int) -> bool:
-    query = f"""SELECT ({EN_MESSAGEID}) FROM {TN_ROUTEDMESSAGES} WHERE {EN_MESSAGEID}={messageId}"""
-    cur.execute(query)
-    return len(cur.fetchall()) > 0
+    try:
+        query = f"""SELECT ({EN_MESSAGEID}) FROM {TN_ROUTEDMESSAGES} WHERE {EN_MESSAGEID}={messageId}"""
+        cur.execute(query)
+        return len(cur.fetchall()) > 0
+    except Exception as exc:
+        print(f"[Error] (isRouted): {exc}")
+        print(f"\tQuery: \"{query}\"")
+        return True
 
 def addRoutedMessage(messageId : int) -> None:
-    query = f"INSERT INTO {TN_ROUTEDMESSAGES} VALUES ({messageId})"
-    cur.execute(query)
-    con.commit()
-    return
+    try:
+        query = f"INSERT INTO {TN_ROUTEDMESSAGES} VALUES ({messageId})"
+        cur.execute(query)
+        con.commit()
+    except Exception as exc:
+        print(f"[Error] (addRoutedMessage): {exc}")
+        print(f"\tQuery: \"{query}\"")
 
 def addGuild(guildId : int) -> None:
-    query = f"INSERT INTO {TN_ACTIVEGUILDS} VALUES ({guildId})"
-    cur.execute(query)
-    con.commit()
-    return
+    try:
+        query = f"INSERT INTO {TN_ACTIVEGUILDS} VALUES ({guildId})"
+        cur.execute(query)
+        con.commit()
+    except Exception as exc:
+        print(f"[Error] (addGuild): {exc}")
+        print(f"\tQuery: \"{query}\"")
 
 def addDefaultRoute(guildId : int, destChannel : int) -> None:
-    query = f"DELETE FROM {TN_ROUTES} WHERE {EN_GUILDID}={guildId} AND {EN_SRCCHANNEL}={-1}"
-    cur.execute(query)
-    con.commit()
-    query = f"INSERT INTO {TN_ROUTES} VALUES ({guildId}, {-1}, {destChannel})"
-    cur.execute(query)
-    con.commit()
-    return
+    try:
+        query = f"DELETE FROM {TN_ROUTES} WHERE {EN_GUILDID}={guildId} AND {EN_SRCCHANNEL}={-1}"
+        cur.execute(query)
+        con.commit()
+        query = f"INSERT INTO {TN_ROUTES} VALUES ({guildId}, {-1}, {destChannel})"
+        cur.execute(query)
+        con.commit()
+    except Exception as exc:
+        print(f"[Error] (addDefaultRoute): {exc}")
+        print(f"\tQuery: \"{query}\"")
 
 def addRoute(guildId : int, srcChannel : int, destChannel : int) -> None:
-    query = f"DELETE FROM {TN_ROUTES} WHERE {EN_GUILDID}={guildId} AND {EN_SRCCHANNEL}={srcChannel}"
-    cur.execute(query)
-    con.commit()
-    query = f"INSERT INTO {TN_ROUTES} VALUES ({guildId}, {srcChannel}, {destChannel})"
-    cur.execute(query)
-    con.commit()
+    try:
+        query = f"DELETE FROM {TN_ROUTES} WHERE {EN_GUILDID}={guildId} AND {EN_SRCCHANNEL}={srcChannel}"
+        cur.execute(query)
+        con.commit()
+        query = f"INSERT INTO {TN_ROUTES} VALUES ({guildId}, {srcChannel}, {destChannel})"
+        cur.execute(query)
+        con.commit()
+    except Exception as exc:
+        print(f"[Error] (addRoute): {exc}")
+        print(f"\tQuery: \"{query}\"")
 
 def addCharacterEntry(name : str, origin : str, val : str, imgUrl : str, proxyUrl : str) -> None:
-    query = f"""INSERT INTO {TN_CHARACTEREMBEDS}({EN_CHARNAME}, {EN_CHARORIGIN}, {EN_CHARVALUE}, {EN_CHARIMGURL}, {EN_CHARIMGPROXYURL}) VALUES ('{name}', '{origin}', '{val}', '{imgUrl}', '{proxyUrl}')"""
-    cur.execute(query)
-    con.commit()
+    try:
+        query = f"""INSERT INTO {TN_CHARACTEREMBEDS}({EN_CHARNAME}, {EN_CHARORIGIN}, {EN_CHARVALUE}, {EN_CHARIMGURL}, {EN_CHARIMGPROXYURL}) VALUES ('{name}', '{origin}', '{val}', '{imgUrl}', '{proxyUrl}')"""
+        cur.execute(query)
+        con.commit()
 
-    print(f"\tNew Character Entry [{name} | {origin} | {val}]")
-    return
+        print(f"\tNew Character Entry [{name} | {origin} | {val}]")
+    except Exception as exc:
+        print(f"[Error] (addCharacterEntry): {exc}")
+        print(f"\tQuery: \"{query}\"")
 
 
 # Discord Bot Helper Functions
-async def checkIsClaim(payload : RawReactionActionEvent) -> bool:
+async def tryRouteClaim(payload : RawReactionActionEvent) -> None:
     """"""
-    roll_channel = client.get_channel(payload.channel_id)
+    try:
+        roll_channel = client.get_channel(payload.channel_id)
 
-    validClaimsChannels = getChannelRoutes(payload.guild_id, payload.channel_id)
-    if (len(validClaimsChannels) > 0):
-        claim_id = validClaimsChannels[0]
-    else:
-        print("\t[REACTION]: No Valid Route Destination Found")
-        return False
+        validClaimsChannels = getChannelRoutes(payload.guild_id, payload.channel_id)
+        if (len(validClaimsChannels) > 0):
+            claim_id = validClaimsChannels[0]
+        else:
+            print("\t[REACTION]: No Valid Route Destination Found")
+            return False
 
-    claimChannel = client.get_channel(claim_id)
-    roll_channel = client.get_channel(payload.channel_id)
+        claimChannel = client.get_channel(claim_id)
+        roll_channel = client.get_channel(payload.channel_id)
 
-    if claimChannel is None:
-        print("\t[REACTION]: Could Not Retrieve ClaimChannel")
-        return False
-    if roll_channel is None:
-        print("\t[REACTION]: Could Not Retrieve RollChannel")
-        return False
+        if claimChannel is None:
+            print("\t[REACTION]: Could Not Retrieve ClaimChannel")
+            return False
+        if roll_channel is None:
+            print("\t[REACTION]: Could Not Retrieve RollChannel")
+            return False
 
-    message : Message = await roll_channel.fetch_message(payload.message_id)
+        message : Message = await roll_channel.fetch_message(payload.message_id)
 
-    # Message Checks
-    if payload.event_type != 'REACTION_ADD':
-        # print("\t[REACTION]: Not Added Reaction")
-        return False
-    if 'kakera' in payload.emoji.name:
-        # print("\t[REACTION]: Emoji was 'kakera'")
-        return False
-    if payload.user_id == MUDAE_BOT_ID:
-        # print("\t[REACTION]: User was Mudae Bot")
-        return False
-    if payload.guild_id not in getAllActiveGuilds():
-        # print("\t[REACTION]: Guild id Not Found")
-        return False
-    if payload.channel_id == claimChannel.id:
-        # print("\t[REACTION]: Channel ID is Claims Channel")
-        return False
-    if message.author.id != MUDAE_BOT_ID:
-        # print("\t[REACTION]: Reaction was not on a Mudae Roll")
-        return False
-    if len(message.embeds) <= 0:
-        # print("\t[REACTION]: No Embeds Founds in Message")
-        return False
-    if 'footer' not in message.embeds[0].to_dict():
-        # print("\t[REACTION]: No Footer Found in Message (not claimed)")
-        return False
-    if 'text' not in message.embeds[0].to_dict()['footer']:
-        # print("\t[REACTION]: No text was found in footer (not claimed)")
-        return False
-    if '~~' in message.embeds[0].to_dict()['footer']['text'] or 'Belongs to' not in message.embeds[0].to_dict()['footer']['text']:
-        # print("\t[REACTION]: Roll Not Claimed")
-        return False
-    if isRouted(message.id):
-        # print("\t[REACTION]: Message has already been routed")
-        return False
+        # Message Checks
+        if payload.event_type != 'REACTION_ADD':
+            # print("\t[REACTION]: Not Added Reaction")
+            return False
+        if 'kakera' in payload.emoji.name:
+            # print("\t[REACTION]: Emoji was 'kakera'")
+            return False
+        if payload.user_id == MUDAE_BOT_ID:
+            # print("\t[REACTION]: User was Mudae Bot")
+            return False
+        if payload.guild_id not in getAllActiveGuilds():
+            # print("\t[REACTION]: Guild id Not Found")
+            return False
+        if payload.channel_id == claimChannel.id:
+            # print("\t[REACTION]: Channel ID is Claims Channel")
+            return False
+        if message.author.id != MUDAE_BOT_ID:
+            # print("\t[REACTION]: Reaction was not on a Mudae Roll")
+            return False
+        if len(message.embeds) <= 0:
+            # print("\t[REACTION]: No Embeds Founds in Message")
+            return False
+        if 'footer' not in message.embeds[0].to_dict():
+            # print("\t[REACTION]: No Footer Found in Message (not claimed)")
+            return False
+        if 'text' not in message.embeds[0].to_dict()['footer']:
+            # print("\t[REACTION]: No text was found in footer (not claimed)")
+            return False
+        if '~~' in message.embeds[0].to_dict()['footer']['text'] or 'Belongs to' not in message.embeds[0].to_dict()['footer']['text']:
+            # print("\t[REACTION]: Roll Not Claimed")
+            return False
+        if isRouted(message.id):
+            # print("\t[REACTION]: Message has already been routed")
+            return False
 
-    for embed in message.embeds:
-        await claimChannel.send(embed=embed)
-        addRoutedMessage(payload.message_id)
+        for embed in message.embeds:
+            await claimChannel.send(embed=embed)
+            addRoutedMessage(payload.message_id)
 
-    return True
+    except Exception as exc:
+        print(f"[Error] (tryRouteClaim): {exc}")
 
 
 async def storeRolls(message : Message) -> None:
     """"""
-    if message.author.id != MUDAE_BOT_ID:
-        # print(f"\t[ON_MESSAGE]: Message is not from MudaeBot")
-        return False
-    if len(message.embeds) <= 0:
-        # print("\t[ON_MESSAGE]: No Embeds Founds in Message")
-        return False
-    if len(message.embeds[0].to_dict()) <= 0:
-        # print("\t[ON_MESSAGE]: Embeds Are empty")
-        return False
-    
-    embedDict = message.embeds[0].to_dict()
+    try:
+        if message.author.id != MUDAE_BOT_ID:
+            # print(f"\t[ON_MESSAGE]: Message is not from MudaeBot")
+            return False
+        if len(message.embeds) <= 0:
+            # print("\t[ON_MESSAGE]: No Embeds Founds in Message")
+            return False
+        if len(message.embeds[0].to_dict()) <= 0:
+            # print("\t[ON_MESSAGE]: Embeds Are empty")
+            return False
+        
+        embedDict = message.embeds[0].to_dict()
 
-    if "author" not in embedDict:
-        return False
-    if "name" not in embedDict["author"]:
-        return False
-    if "description" not in embedDict:
-        return False
-    if "React with any emoji to claim!" not in embedDict["description"]:
-        return False
-    if "image" not in embedDict:
-        return False
-    if "url" not in embedDict["image"] and "proxy_url" not in embedDict["image"]:
-        return False
+        if "author" not in embedDict:
+            return False
+        if "name" not in embedDict["author"]:
+            return False
+        if "description" not in embedDict:
+            return False
+        if "React with any emoji to claim!" not in embedDict["description"]:
+            return False
+        if "image" not in embedDict:
+            return False
+        if "url" not in embedDict["image"] and "proxy_url" not in embedDict["image"]:
+            return False
 
-    name = embedDict["author"]["name"].replace(","," ")
-    origin = " ".join(embedDict["description"][0:(embedDict["description"].find("**"))].split()).replace(","," ")
-    value = embedDict["description"][(embedDict["description"].find("**")):(embedDict["description"].rfind("**"))].strip("*")
-    url = embedDict["image"]["url"]
-    proxy_url = embedDict["image"]["proxy_url"]
+        name = embedDict["author"]["name"].replace(","," ")
+        origin = " ".join(embedDict["description"][0:(embedDict["description"].find("**"))].split()).replace(","," ")
+        value = embedDict["description"][(embedDict["description"].find("**")):(embedDict["description"].rfind("**"))].strip("*")
+        url = embedDict["image"]["url"]
+        proxy_url = embedDict["image"]["proxy_url"]
 
-    addCharacterEntry(name, origin, value, url, proxy_url)
+        addCharacterEntry(name, origin, value, url, proxy_url)
+    except Exception as exc:
+        print(f"[Error] (storeRolls): {exc}")
 
 
 
@@ -247,7 +284,7 @@ async def on_ready():
 async def on_raw_reaction_add(payload : RawReactionActionEvent):
     """"""
     await asyncio.sleep(2.5)
-    await checkIsClaim(payload)
+    await tryRouteClaim(payload)
 
 
 @commands.guild_only()
