@@ -145,8 +145,8 @@ def addRoute(guildId : int, srcChannel : int, destChannel : int) -> None:
 
 def addCharacterEntry(name : str, origin : str, val : str, imgUrl : str, proxyUrl : str) -> None:
     try:
-        query = f"""INSERT INTO {TN_CHARACTEREMBEDS}({EN_CHARNAME}, {EN_CHARORIGIN}, {EN_CHARVALUE}, {EN_CHARIMGURL}, {EN_CHARIMGPROXYURL}) VALUES ('{name}', '{origin}', '{val}', '{imgUrl}', '{proxyUrl}')"""
-        cur.execute(query)
+        query = f"""INSERT INTO {TN_CHARACTEREMBEDS} VALUES (?, ?, ?, ?, ?)"""
+        cur.execute(query, (name, origin, val, imgUrl, proxyUrl))
         con.commit()
 
         print(f"\tNew Character Entry [{name} | {origin} | {val}]")
@@ -252,9 +252,9 @@ async def storeRolls(message : Message) -> None:
         if "url" not in embedDict["image"] and "proxy_url" not in embedDict["image"]:
             return False
 
-        name = embedDict["author"]["name"].replace(","," ").replace("'","").replace("\'","")
-        origin = " ".join(embedDict["description"][0:(embedDict["description"].find("**"))].split()).replace(","," ").replace("\'","")
-        value = embedDict["description"][(embedDict["description"].find("**")):(embedDict["description"].rfind("**"))].strip("*").replace("\'","")
+        name = embedDict["author"]["name"]
+        origin = " ".join(embedDict["description"][0:(embedDict["description"].find("**"))].split())
+        value = embedDict["description"][(embedDict["description"].find("**")):(embedDict["description"].rfind("**"))].strip("*")
         url = embedDict["image"]["url"]
         proxy_url = embedDict["image"]["proxy_url"]
 
