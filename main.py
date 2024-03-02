@@ -306,13 +306,6 @@ async def routeTo(ctx : commands.Context, *, destChannelId : int):
         await ctx.send(f'Could Not Route Claims in {ctx.message.channel.name} to {destChannelId}')
 
 
-
-
-
-
-
-
-
 if __name__ == "__main__":
     client.run(BOT_TOKEN)
 
