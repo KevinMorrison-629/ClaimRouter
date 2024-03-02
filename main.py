@@ -17,7 +17,7 @@ import os
 
 # Constants
 dotenv.load_dotenv()
-BOT_TOKEN = os.environment.get("BOT_TOKEN")
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
 DB_FILEPATH = "RoutedClaims.db"
 MUDAE_BOT_ID = 432610292342587392
