@@ -166,6 +166,7 @@ async def tryRouteClaim(payload : RawReactionActionEvent) -> None:
             claim_id = validClaimsChannels[0]
         else:
             print("\t[REACTION]: No Valid Route Destination Found")
+            print(f"\t\t[Guild: {roll_channel.guild.name}] [RollChannel: {roll_channel.name}]")
             return False
 
         claimChannel = client.get_channel(claim_id)
@@ -250,8 +251,6 @@ async def storeRolls(message : Message) -> None:
             return False
         if "url" not in embedDict["image"] and "proxy_url" not in embedDict["image"]:
             return False
-        
-        if "\'" in 
 
         name = embedDict["author"]["name"].replace(","," ").replace("'","").replace("\'","")
         origin = " ".join(embedDict["description"][0:(embedDict["description"].find("**"))].split()).replace(","," ").replace("\'","")
