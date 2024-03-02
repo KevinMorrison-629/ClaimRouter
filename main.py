@@ -250,10 +250,12 @@ async def storeRolls(message : Message) -> None:
             return False
         if "url" not in embedDict["image"] and "proxy_url" not in embedDict["image"]:
             return False
+        
+        if "\'" in 
 
-        name = embedDict["author"]["name"].replace(","," ").replace("'","")
-        origin = " ".join(embedDict["description"][0:(embedDict["description"].find("**"))].split()).replace(","," ").replace("'","")
-        value = embedDict["description"][(embedDict["description"].find("**")):(embedDict["description"].rfind("**"))].strip("*")
+        name = embedDict["author"]["name"].replace(","," ").replace("'","").replace("\'","")
+        origin = " ".join(embedDict["description"][0:(embedDict["description"].find("**"))].split()).replace(","," ").replace("\'","")
+        value = embedDict["description"][(embedDict["description"].find("**")):(embedDict["description"].rfind("**"))].strip("*").replace("\'","")
         url = embedDict["image"]["url"]
         proxy_url = embedDict["image"]["proxy_url"]
 
