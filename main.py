@@ -170,7 +170,6 @@ async def tryRouteClaim(payload : RawReactionActionEvent) -> None:
             return False
 
         claimChannel = client.get_channel(claim_id)
-        roll_channel = client.get_channel(payload.channel_id)
 
         if claimChannel is None:
             print("\t[REACTION]: Could Not Retrieve ClaimChannel")
@@ -262,6 +261,64 @@ async def storeRolls(message : Message) -> None:
     except Exception as exc:
         print(f"[Error] (storeRolls): {exc}")
 
+async def tryRouteWish(message : Message) -> None:
+    try:
+        if isRouted(message.id):
+            print("\t[WISH]: Message has already been routed")
+            return False
+        
+        validClaimsChannels = getChannelRoutes(message.guild.id, message.channel.id)
+        if (len(validClaimsChannels) > 0):
+            claim_id = validClaimsChannels[0]
+        else:
+            print("\t[WISH]: No Valid Route Destination Found")
+            print(f"\t\t[Guild: {message.guild.name}] [RollChannel: {message.channel.name}]")
+            return False
+
+        claimChannel = client.get_channel(claim_id)
+        roll_channel = message.channel
+
+        if claimChannel is None:
+            print("\t[WISH]: Could Not Retrieve ClaimChannel")
+            return False
+        if roll_channel is None:
+            print("\t[WISH]: Could Not Retrieve RollChannel")
+            return False
+        
+         # Message Checks
+        if len(message.mentions) <= 0:
+            print("\t[WISH]: No mentions in message")
+            return False
+        if "" not in message.content:
+            print("\t[WISH]: 'Wished By' not in message")
+            return False
+        if message.guild.id not in getAllActiveGuilds():
+            print("\t[WISH]: Guild id Not Found")
+            return False
+        if message.channel.id == claimChannel.id:
+            print("\t[WISH]: Channel ID is Claims Channel")
+            return False
+        if message.author.id != MUDAE_BOT_ID:
+            print("\t[WISH]: Message was not on a Mudae Roll")
+            return False
+        if len(message.embeds) <= 0:
+            print("\t[WISH]: No Embeds Founds in Message")
+            return False
+        if 'footer' not in message.embeds[0].to_dict():
+            print("\t[WISH]: No Footer Found in Message (not claimed)")
+            return False
+        if 'text' not in message.embeds[0].to_dict()['footer']:
+            print("\t[WISH]: No text was found in footer (not claimed)")
+            return False
+        if '~~' in message.embeds[0].to_dict()['footer']['text'] or 'Belongs to' not in message.embeds[0].to_dict()['footer']['text']:
+            print("\t[WISH]: Roll Not Claimed")
+            return False
+
+        for embed in message.embeds:
+            await claimChannel.send(embed=embed)
+            addRoutedMessage(message.id)
+    except Exception as exc:
+        print(f"[Error] (tryRouteWish): {exc}")
 
 
 # Discord Bot Events/Command Functions
@@ -295,6 +352,7 @@ async def on_message(message : Message):
     """"""
     await client.process_commands(message)
     await storeRolls(message)
+    await tryRouteWish(message)
 
 
 @tasks.loop(seconds=6000)
