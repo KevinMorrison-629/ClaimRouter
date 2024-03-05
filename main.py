@@ -267,20 +267,8 @@ async def tryRouteWish(message : Message) -> None:
             print("\t[WISH]: Message has already been routed")
             return False
         
-        validClaimsChannels = getChannelRoutes(message.guild.id, message.channel.id)
-        if (len(validClaimsChannels) > 0):
-            claim_id = validClaimsChannels[0]
-        else:
-            print("\t[WISH]: No Valid Route Destination Found")
-            print(f"\t\t[Guild: {message.guild.name}] [RollChannel: {message.channel.name}]")
-            return False
-
-        claimChannel = client.get_channel(claim_id)
         roll_channel = message.channel
 
-        if claimChannel is None:
-            print("\t[WISH]: Could Not Retrieve ClaimChannel")
-            return False
         if roll_channel is None:
             print("\t[WISH]: Could Not Retrieve RollChannel")
             return False
@@ -295,15 +283,31 @@ async def tryRouteWish(message : Message) -> None:
         if message.guild.id not in getAllActiveGuilds():
             print("\t[WISH]: Guild id Not Found")
             return False
-        if message.channel.id == claimChannel.id:
-            print("\t[WISH]: Channel ID is Claims Channel")
-            return False
+        
         if message.author.id != MUDAE_BOT_ID:
             print("\t[WISH]: Message was not on a Mudae Roll")
             return False
         if len(message.embeds) <= 0:
             print("\t[WISH]: No Embeds Founds in Message")
             return False
+        
+        await asyncio.sleep(2.5)
+        
+        validClaimsChannels = getChannelRoutes(message.guild.id, message.channel.id)
+        if (len(validClaimsChannels) > 0):
+            claim_id = validClaimsChannels[0]
+        else:
+            print("\t[WISH]: No Valid Route Destination Found")
+            print(f"\t\t[Guild: {message.guild.name}] [RollChannel: {message.channel.name}]")
+            return False
+        claimChannel = client.get_channel(claim_id)
+        if claimChannel is None:
+            print("\t[WISH]: Could Not Retrieve ClaimChannel")
+            return False
+        if message.channel.id == claimChannel.id:
+            print("\t[WISH]: Channel ID is Claims Channel")
+            return False
+
         if 'footer' not in message.embeds[0].to_dict():
             print("\t[WISH]: No Footer Found in Message (not claimed)")
             return False
