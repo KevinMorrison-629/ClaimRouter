@@ -291,8 +291,6 @@ async def tryRouteWish(message : Message) -> None:
             print("\t[WISH]: No Embeds Founds in Message")
             return False
         
-        await asyncio.sleep(2.5)
-        
         validClaimsChannels = getChannelRoutes(message.guild.id, message.channel.id)
         if (len(validClaimsChannels) > 0):
             claim_id = validClaimsChannels[0]
@@ -308,15 +306,16 @@ async def tryRouteWish(message : Message) -> None:
             print("\t[WISH]: Channel ID is Claims Channel")
             return False
 
-        if 'footer' not in message.embeds[0].to_dict():
-            print("\t[WISH]: No Footer Found in Message (not claimed)")
-            return False
-        if 'text' not in message.embeds[0].to_dict()['footer']:
-            print("\t[WISH]: No text was found in footer (not claimed)")
-            return False
-        if '~~' in message.embeds[0].to_dict()['footer']['text'] or 'Belongs to' not in message.embeds[0].to_dict()['footer']['text']:
-            print("\t[WISH]: Roll Not Claimed")
-            return False
+        # commenting out for now until I can get a better idea on how to deal with these
+        # if 'footer' not in message.embeds[0].to_dict():
+        #     print("\t[WISH]: No Footer Found in Message (not claimed)")
+        #     return False
+        # if 'text' not in message.embeds[0].to_dict()['footer']:
+        #     print("\t[WISH]: No text was found in footer (not claimed)")
+        #     return False
+        # if 'Belongs to' not in message.embeds[0].to_dict()['footer']['text']:
+        #     print("\t[WISH]: Roll Not Claimed")
+        #     return False
 
         for embed in message.embeds:
             await claimChannel.send(embed=embed)
